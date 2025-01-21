@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Frame Example</title>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+</head>
+<body>
+    <a-scene>
+        <a-entity camera look-controls position="0 1.6 0"></a-entity>
+  <a-entity hand-controls="left"></a-entity>
+  <a-entity hand-controls="right"></a-entity>
+
+  <a-entity camera look-controls position="0 1.6 0" movement-controls></a-entity>
+  <a-entity hand-controls="left"></a-entity>
+  <a-entity hand-controls="right"></a-entity>
+
+        <a-sky color="#ececec"></a-sky>
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#557543"></a-plane>
+        
+        <!-- Добавление камеры с контролем движения -->
+        <a-entity camera look-controls position="0 1.6 0" movement-controls></a-entity>
+
+        <a-box position="-1 0.5 -3" rotation="0 45 45" color="#012234" class="collectible"></a-box>
+        <a-sphere position="-1 1.5 -5" radius="1.25" color="#995122" class="collectible"></a-sphere>
+        <a-cylinder position="-1 2.5 -5" radius="0.5" height="1.5" color="#955123" class="collectible"></a-cylinder>
+        
+        <a-text value="Score: 0" position="-1.5 2.5 -5" color="black" id="score"></a-text>
+        <a-text id="timer" value="Time: 60" position="1.5 2.5 -5" color="black"></a-text>
+    </a-scene>
+
+    <script>
+        AFRAME.registerComponent('collectible', {
+            init: function() {
+                this.el.addEventListener('click', () => {
+                    this.el.parentNode.removeChild(this.el);
+                    let scoreElement = document.querySelector('#score');
+                    let score = parseInt(scoreElement.getAttribute('value').split(': ')[1]) + 1;
+                    scoreElement.setAttribute('value', 'Score: ' + score);
+                });
+            }
+        });
+
+        let timeLeft = 60;
+        let timerElement = document.querySelector('#timer');
+
+        function updateTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                timerElement.setAttribute('value', 'Time: ' + timeLeft);
+            } else {
+                endGame();
+            }
+        }
+
+        setInterval(updateTimer, 1000);
+
+        function endGame() {
+            let finalScore = parseInt(document.querySelector('#score').getAttribute('value').split(': ')[1]);
+            alert('Game over! Your final score: ' + finalScore);
+            location.reload();
+        }
+        AFRAME.registerComponent('movement-controls', {
+    init: function () {
+      this.el.addEventListener('thumbstickmoved', this.onThumbstickMoved.bind(this));
+    },
+    onThumbstickMoved: function (evt) {
+      const direction = evt.detail.axis;
+      const speed = 0.1; // Скорость передвижения
+      const position = this.el.object3D.position;
+
+      // Обновление позиции камеры на основе ввода с левого стика
+      position.x += direction[0] * speed;
+      position.z += direction[1] * speed;
+    }
+  });
+    </script>
+</body>
+</html>
